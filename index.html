@@ -14,14 +14,13 @@
 
   <p id="status"></p>
 
-  <!-- Biblioteca Supabase -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
   <script>
     const supabaseUrl = "https://wugkwzmlgsohabibsxhn.supabase.co";
     const supabaseKey = "sb_publishable_sWmFk7EG7GR6PWsw5S_gnw_9wSOPYHL";
 
-    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    const client = window.supabase.createClient(supabaseUrl, supabaseKey);
 
     async function enviarAudio() {
       const fileInput = document.getElementById("audioFile");
@@ -35,7 +34,7 @@
       const file = fileInput.files[0];
       status.innerText = "Enviando...";
 
-      const { data, error } = await supabase.storage
+      const { data, error } = await client.storage
         .from("audios")
         .upload(Date.now() + "_" + file.name, file);
 
