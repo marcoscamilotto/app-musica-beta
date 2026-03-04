@@ -2,10 +2,44 @@
 <html>
 <head>
   <title>App Música Beta</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <h1>🎵 App Música Beta</h1>
   <p>Envie sua música e gere a letra automaticamente.</p>
-  <button>Enviar Áudio</button>
+
+  <input type="file" id="audioFile" />
+  <button onclick="enviarAudio()">Enviar Áudio</button>
+
+  <p id="status"></p>
+
+  <script>
+    const supabaseUrl = "https://wugkwzmlgsohabibsxhn.supabase.co";
+    const supabaseKey = "sb_publishable_sWmFk7EG7GR6PWsw5S_gnw_9wSOPYHL";
+
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    async function enviarAudio() {
+      const fileInput = document.getElementById("audioFile");
+      const file = fileInput.files[0];
+
+      if (!file) {
+        alert("Selecione um arquivo primeiro!");
+        return;
+      }
+
+      document.getElementById("status").innerText = "Enviando...";
+
+      const { data, error } = await supabase.storage
+        .from("audios")
+        .upload(`public/${file.name}`, file);
+
+      if (error) {
+        document.getElementById("status").innerText = "Erro ao enviar!";
+      } else {
+        document.getElementById("status").innerText = "Upload concluído!";
+      }
+    }
+  </script>
 </body>
 </html>
