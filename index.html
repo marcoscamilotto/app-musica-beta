@@ -46,6 +46,21 @@
       }
     }
   </script>
+<script>
+async function enviarAudio(audioBlob) {
+  const response = await fetch("/api/transcrever", {
+    method: "POST",
+    body: audioBlob,
+  });
 
+  const data = await response.json();
+
+  if (data.text) {
+    document.getElementById("resultado").innerText = data.text;
+  } else {
+    document.getElementById("resultado").innerText = "Erro ao transcrever.";
+  }
+}
+</script>
 </body>
-</html>
+</html><div id="resultado"></div>
