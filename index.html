@@ -1,42 +1,52 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>App Música Beta</title>
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script></head>
+</head>
 <body>
+
   <h1>🎵 App Música Beta</h1>
   <p>Envie sua música e gere a letra automaticamente.</p>
 
-  <input type="file" id="audioFile" />
+  <input type="file" id="audioFile">
   <button onclick="enviarAudio()">Enviar Áudio</button>
 
   <p id="status"></p>
 
+  <!-- Biblioteca Supabase -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
   <script>
-    const supabaseUrl = "https://wugkwzmlgsohabibsxhn.supabase.co";
-    const supabaseKey = "sb_publishable_sWmFk7EG7GR6PWsw5S_gnw_9wSOPYHL";
+    const supabaseUrl = "COLE_SUA_URL_AQUI";
+    const supabaseKey = "COLE_SUA_CHAVE_PUBLICAVEL_AQUI";
 
-const supabase = window.supabase.createClient(...)    async function enviarAudio() {
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    async function enviarAudio() {
       const fileInput = document.getElementById("audioFile");
-      const file = fileInput.files[0];
+      const status = document.getElementById("status");
 
-      if (!file) {
+      if (!fileInput.files.length) {
         alert("Selecione um arquivo primeiro!");
         return;
       }
 
-      document.getElementById("status").innerText = "Enviando...";
+      const file = fileInput.files[0];
+      status.innerText = "Enviando...";
 
       const { data, error } = await supabase.storage
         .from("audios")
-        .upload(`public/${file.name}`, file);
+        .upload(Date.now() + "_" + file.name, file);
 
       if (error) {
-        document.getElementById("status").innerText = "Erro ao enviar!";
+        console.error(error);
+        status.innerText = "Erro ao enviar!";
       } else {
-        document.getElementById("status").innerText = "Upload concluído!";
+        status.innerText = "Upload concluído!";
       }
     }
   </script>
+
 </body>
 </html>
