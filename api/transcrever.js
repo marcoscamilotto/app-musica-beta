@@ -26,7 +26,10 @@ export default async function handler(req, res) {
     }
 
     try {
-      const audioFile = files.audio;
+      // 👇 CORREÇÃO AQUI
+      const audioFile = Array.isArray(files.audio)
+        ? files.audio[0]
+        : files.audio;
 
       if (!audioFile) {
         return res.status(400).json({ error: "Nenhum arquivo enviado" });
