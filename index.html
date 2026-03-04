@@ -16,8 +16,7 @@
     const supabaseUrl = "https://wugkwzmlgsohabibsxhn.supabase.co";
     const supabaseKey = "sb_publishable_sWmFk7EG7GR6PWsw5S_gnw_9wSOPYHL";
 
-    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
     async function enviarAudio() {
       const fileInput = document.getElementById("audioFile");
       const file = fileInput.files[0];
