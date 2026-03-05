@@ -37,9 +37,9 @@ export default async function handler(req, res) {
       const fileBuffer = fs.readFileSync(audioFile.filepath);
 
       const transcription = await openai.audio.transcriptions.create({
-        file: await toFile(fileBuffer, "audio.mp3"),
-        model: "whisper-1",
-      });
+  file: await toFile(fileBuffer, "audio.mp3"),
+  model: "gpt-4o-mini-transcribe",
+});
 
       return res.status(200).json({
         texto: transcription.text,
