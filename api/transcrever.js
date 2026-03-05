@@ -4,6 +4,8 @@ export const config = {
   },
 };
 
+export const maxDuration = 60;
+
 import formidable from "formidable";
 import fs from "fs";
 import OpenAI, { toFile } from "openai";
