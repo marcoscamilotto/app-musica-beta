@@ -35,9 +35,12 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: "Nenhum arquivo enviado" });
       }
 
-      const transcription = await openai.audio.transcriptions.create({
-        file: fs.createReadStream(audioFile.filepath),
-        model: "whisper-1",
+      const fileBuffer = fs.readFileSync(audioFile.filepath);
+
+const transcription = await openai.audio.transcriptions.create({
+  file: fileBuffer,
+  model: "whisper-1",
+});
       });
 
       return res.status(200).json({
