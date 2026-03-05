@@ -1,59 +1,52 @@
 export const config = {
-  api: {
-    bodyParser: false,
-  },
+  runtime: "edge",
 };
 
-export const maxDuration = 60;
-
-import formidable from "formidable";
-import fs from "fs";
-import OpenAI, { toFile } from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-export default async function handler(req, res) {
+export default async function handler(req) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Método não permitido" });
+    return new Response(
+      JSON.stringify({ error: "Método não permitido" }),
+      { status: 405 }
+    );
   }
 
-  const form = formidable({ multiples: false });
+  try {
+    const formData = await req.formData();
+    const file = formData.get("audio");
 
-  form.parse(req, async (err, fields, files) => {
-    if (err) {
-      console.error("Erro ao processar upload:", err);
-      return res.status(500).json({ error: "Erro no upload do arquivo" });
+    if (!file) {
+      return new Response(
+        JSON.stringify({ error: "Nenhum arquivo enviado" }),
+        { status: 400 }
+      );
     }
 
-    try {
-      const audioFile = Array.isArray(files.audio)
-        ? files.audio[0]
-        : files.audio;
-
-      if (!audioFile) {
-        return res.status(400).json({ error: "Nenhum arquivo enviado" });
+    const openaiResponse = await fetch(
+      "https://api.openai.com/v1/audio/transcriptions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        },
+        body: (() => {
+          const newForm = new FormData();
+          newForm.append("file", file);
+          newForm.append("model", "gpt-4o-mini-transcribe");
+          return newForm;
+        })(),
       }
+    );
 
-      const fileBuffer = fs.readFileSync(audioFile.filepath);
+    const data = await openaiResponse.json();
 
-      const transcription = await openai.audio.transcriptions.create({
-  file: await toFile(fileBuffer, "audio.mp3"),
-  model: "gpt-4o-mini-transcribe",
-});
+    return new Response(JSON.stringify(data), {
+      status: 200,
+    });
 
-      return res.status(200).json({
-        texto: transcription.text,
-      });
-
-    } catch (error) {
-      console.error("Erro na transcrição:", error);
-
-      return res.status(500).json({
-        error: "Erro ao transcrever áudio",
-        details: error.message,
-      });
-    }
-  });
+  } catch (error) {
+    return new Response(
+      JSON.stringify({ error: "Erro ao transcrever" }),
+      { status: 500 }
+    );
+  }
 }
