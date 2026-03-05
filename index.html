@@ -12,55 +12,42 @@
   <input type="file" id="audioFile">
   <button onclick="enviarAudio()">Enviar Áudio</button>
 
-  <p id="status"></p>
-
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <p id="resultado"></p>
 
   <script>
-    const supabaseUrl = "https://wugkwzmlgsohabibsxhn.supabase.co";
-    const supabaseKey = "sb_publishable_sWmFk7EG7GR6PWsw5S_gnw_9wSOPYHL";
-
-    const client = window.supabase.createClient(supabaseUrl, supabaseKey);
-
     async function enviarAudio() {
       const fileInput = document.getElementById("audioFile");
-      const status = document.getElementById("status");
+      const resultado = document.getElementById("resultado");
 
       if (!fileInput.files.length) {
-        alert("Selecione um arquivo primeiro!");
+        alert("Escolha um arquivo primeiro!");
         return;
       }
 
-      const file = fileInput.files[0];
-      status.innerText = "Enviando...";
+      const formData = new FormData();
+      formData.append("audio", fileInput.files[0]);
 
-      const { data, error } = await client.storage
-        .from("audios")
-        .upload(Date.now() + "_" + file.name, file);
+      resultado.innerText = "Transcrevendo...";
 
-      if (error) {
-        console.error(error);
-        status.innerText = "Erro ao enviar!";
-      } else {
-        status.innerText = "Upload concluído!";
+      try {
+        const response = await fetch("/api/transcrever", {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          resultado.innerText = data.texto;
+        } else {
+          resultado.innerText = "Erro: " + data.error;
+        }
+
+      } catch (error) {
+        resultado.innerText = "Erro ao enviar áudio.";
       }
     }
   </script>
-<script>
-async function enviarAudio(audioBlob) {
-  const response = await fetch("/api/transcrever", {
-    method: "POST",
-    body: audioBlob,
-  });
 
-  const data = await response.json();
-
-  if (data.text) {
-    document.getElementById("resultado").innerText = data.text;
-  } else {
-    document.getElementById("resultado").innerText = "Erro ao transcrever.";
-  }
-}
-</script>
 </body>
-</html><div id="resultado"></div>
+</html>
