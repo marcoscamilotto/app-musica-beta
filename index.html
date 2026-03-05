@@ -15,31 +15,33 @@
   <pre id="resultado"></pre>
 
   <script>
-   <script>
-async function enviarAudio() {
-  const input = document.getElementById("audioFile");
-  const file = input.files[0];
+    async function enviarAudio() {
+      const input = document.getElementById("audioFile");
+      const file = input.files[0];
 
-  if (!file) {
-    alert("Selecione um arquivo");
-    return;
-  }
+      if (!file) {
+        alert("Selecione um arquivo");
+        return;
+      }
 
-  const formData = new FormData();
-  formData.append("audio", file);
+      const formData = new FormData();
+      formData.append("audio", file);
 
-  const response = await fetch("/api/transcrever", {
-    method: "POST",
-    body: formData,
-  });
+      const response = await fetch("/api/transcrever", {
+        method: "POST",
+        body: formData,
+      });
 
-  const data = await response.json();
+      const data = await response.json();
 
-  if (data.text) {
-    document.getElementById("resultado").innerText = data.text;
-  } else {
-    console.error(data);
-    alert("Erro na transcrição");
-  }
-}
-</script>
+      if (data.text) {
+        document.getElementById("resultado").innerText = data.text;
+      } else {
+        console.error(data);
+        alert("Erro na transcrição");
+      }
+    }
+  </script>
+
+</body>
+</html>
