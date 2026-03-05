@@ -6,7 +6,7 @@ export const config = {
 
 import formidable from "formidable";
 import fs from "fs";
-import OpenAI from "openai";
+import OpenAI, { toFile } from "openai";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -26,7 +26,6 @@ export default async function handler(req, res) {
     }
 
     try {
-      // 👇 CORREÇÃO AQUI
       const audioFile = Array.isArray(files.audio)
         ? files.audio[0]
         : files.audio;
@@ -37,10 +36,9 @@ export default async function handler(req, res) {
 
       const fileBuffer = fs.readFileSync(audioFile.filepath);
 
-const transcription = await openai.audio.transcriptions.create({
-  file: fileBuffer,
-  model: "whisper-1",
-});
+      const transcription = await openai.audio.transcriptions.create({
+        file: await toFile(fileBuffer, "audio.mp3"),
+        model: "whisper-1",
       });
 
       return res.status(200).json({
