@@ -32,7 +32,7 @@ export default async function handler(req) {
     const data = await openaiResponse.json();
 
     return new Response(
-      JSON.stringify({ text: data.text }),
+      JSON.stringify({ text: data.texto }),
       {
         headers: { "Content-Type": "application/json" },
       }
