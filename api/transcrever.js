@@ -3,27 +3,20 @@ export const config = {
 };
 
 export default async function handler(req) {
-  if (req.method !== "POST") {
-    return new Response(
-      JSON.stringify({ error: "Método não permitido" }),
-      { status: 405 }
-    );
-  }
-
   try {
     const formData = await req.formData();
-    const audioFile = formData.get("audio");
+    const audio = formData.get("audio");
 
-    if (!audioFile) {
+    if (!audio) {
       return new Response(
-        JSON.stringify({ error: "Arquivo de áudio não enviado" }),
+        JSON.stringify({ error: "Nenhum áudio enviado" }),
         { status: 400 }
       );
     }
 
-    const newForm = new FormData();
-    newForm.append("file", audioFile);
-    newForm.append("model", "whisper-1");
+    const openaiForm = new FormData();
+    openaiForm.append("file", audio);
+    openaiForm.append("model", "whisper-1");
 
     const openaiResponse = await fetch(
       "https://api.openai.com/v1/audio/transcriptions",
@@ -32,7 +25,7 @@ export default async function handler(req) {
         headers: {
           Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
         },
-        body: newForm,
+        body: openaiForm,
       }
     );
 
@@ -41,14 +34,12 @@ export default async function handler(req) {
     return new Response(
       JSON.stringify({ text: data.text }),
       {
-        status: 200,
         headers: { "Content-Type": "application/json" },
       }
     );
-
   } catch (error) {
     return new Response(
-      JSON.stringify({ error: "Erro na transcrição", details: error.message }),
+      JSON.stringify({ error: error.message }),
       { status: 500 }
     );
   }
