@@ -1,40 +1,55 @@
-import OpenAI from "openai"
+import OpenAI from "openai";
+import formidable from "formidable";
+import fs from "fs";
 
 export const config = {
   api: {
-    bodyParser: false
-  }
-}
+    bodyParser: false,
+  },
+};
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 export default async function handler(req, res) {
 
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Método não permitido" })
+    return res.status(405).json({ error: "Método não permitido" });
   }
 
-  try {
+  const form = formidable();
 
-    const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY
-    })
+  form.parse(req, async (err, fields, files) => {
 
-    const transcription = await openai.audio.transcriptions.create({
-      file: req,
-      model: "whisper-1"
-    })
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Erro ao ler arquivo" });
+    }
 
-    res.status(200).json({
-      texto: transcription.text
-    })
+    try {
 
-  } catch (error) {
+      const audio = files.audio[0];
 
-    console.error(error)
+      const transcription = await openai.audio.transcriptions.create({
+        file: fs.createReadStream(audio.filepath),
+        model: "whisper-1",
+      });
 
-    res.status(500).json({
-      error: "Erro ao transcrever"
-    })
+      res.status(200).json({
+        text: transcription.text,
+      });
 
-  }
+    } catch (error) {
+
+      console.error(error);
+
+      res.status(500).json({
+        error: "Erro na transcrição",
+      });
+
+    }
+
+  });
 
 }
