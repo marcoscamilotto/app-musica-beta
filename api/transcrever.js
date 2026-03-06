@@ -14,25 +14,17 @@ export default async function handler(req, res) {
 
   try {
 
-    const chunks = []
-
-    for await (const chunk of req) {
-      chunks.push(chunk)
-    }
-
-    const buffer = Buffer.concat(chunks)
-
     const openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY
     })
 
-    const response = await openai.audio.transcriptions.create({
-      file: new File([buffer], "audio.mp3"),
+    const transcription = await openai.audio.transcriptions.create({
+      file: req,
       model: "whisper-1"
     })
 
     res.status(200).json({
-      texto: response.text
+      texto: transcription.text
     })
 
   } catch (error) {
@@ -40,7 +32,7 @@ export default async function handler(req, res) {
     console.error(error)
 
     res.status(500).json({
-      error: "Erro ao processar áudio"
+      error: "Erro ao transcrever"
     })
 
   }
