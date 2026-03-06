@@ -8,35 +8,33 @@ export const config = {
   },
 };
 
-const openai = new OpenAI({
+const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Método não permitido" });
-  }
-
-  const form = formidable({ multiples: false });
+  const form = new formidable.IncomingForm();
 
   form.parse(req, async (err, fields, files) => {
     try {
       if (err) {
-        return res.status(500).json({ error: "Erro ao ler o arquivo" });
+        console.error(err);
+        return res.status(500).json({ error: "Erro ao ler arquivo" });
       }
 
-      const file = files.audio;
+      const audioFile = files.audio[0];
 
-      const transcription = await openai.audio.transcriptions.create({
-        file: fs.createReadStream(file.filepath),
+      const transcription = await client.audio.transcriptions.create({
+        file: fs.createReadStream(audioFile.filepath),
         model: "gpt-4o-mini-transcribe",
       });
 
       res.status(200).json({
         texto: transcription.text,
       });
+
     } catch (error) {
-      console.error(error);
+      console.error("ERRO:", error);
       res.status(500).json({
         error: "Erro na transcrição",
       });
