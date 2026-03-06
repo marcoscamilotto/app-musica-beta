@@ -1,9 +1,9 @@
 {
   "name": "app-musica-beta",
   "version": "1.0.0",
-  "description": "App para gerar letra de música com OpenAI",
   "type": "module",
   "dependencies": {
+    "openai": "^4.0.0",
     "formidable": "^3.5.0"
   }
 }
