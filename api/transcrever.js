@@ -13,50 +13,35 @@ const openai = new OpenAI({
 });
 
 export default async function handler(req, res) {
-
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Método não permitido" });
   }
 
   try {
-
-    const form = formidable({ multiples: false });
+    const form = formidable();
 
     form.parse(req, async (err, fields, files) => {
-
       if (err) {
-        console.error(err);
-        return res.status(500).json({ error: "Erro ao processar arquivo" });
+        return res.status(500).json({ error: "Erro ao processar upload" });
       }
 
-      const file = files.audio;
+      const audioFile = files.audio?.[0];
 
-      if (!file) {
-        return res.status(400).json({ error: "Arquivo não enviado" });
+      if (!audioFile) {
+        return res.status(400).json({ error: "Nenhum áudio enviado" });
       }
-
-      // 👇 CORREÇÃO AQUI
-      const filePath = file.filepath || file[0]?.filepath;
 
       const transcription = await openai.audio.transcriptions.create({
-        file: fs.createReadStream(filePath),
+        file: fs.createReadStream(audioFile.filepath),
         model: "whisper-1",
       });
 
       res.status(200).json({
-        text: transcription.text,
+        texto: transcription.text,
       });
-
     });
-
   } catch (error) {
-
-    console.error("Erro interno:", error);
-
-    res.status(500).json({
-      error: "Erro ao transcrever áudio",
-    });
-
+    console.error(error);
+    res.status(500).json({ error: "Erro ao transcrever áudio" });
   }
-
 }
