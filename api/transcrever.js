@@ -12,14 +12,18 @@ export default async function handler(req) {
 
   try {
     const formData = await req.formData();
-    const file = formData.get("audio");
+    const audioFile = formData.get("audio");
 
-    if (!file) {
+    if (!audioFile) {
       return new Response(
-        JSON.stringify({ error: "Nenhum arquivo enviado" }),
+        JSON.stringify({ error: "Arquivo de áudio não enviado" }),
         { status: 400 }
       );
     }
+
+    const newForm = new FormData();
+    newForm.append("file", audioFile);
+    newForm.append("model", "whisper-1");
 
     const openaiResponse = await fetch(
       "https://api.openai.com/v1/audio/transcriptions",
@@ -28,24 +32,23 @@ export default async function handler(req) {
         headers: {
           Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
         },
-        body: (() => {
-          const newForm = new FormData();
-          newForm.append("file", file);
-          newForm.append("model", "gpt-4o-mini-transcribe");
-          return newForm;
-        })(),
+        body: newForm,
       }
     );
 
     const data = await openaiResponse.json();
 
-    return new Response(JSON.stringify(data), {
-      status: 200,
-    });
+    return new Response(
+      JSON.stringify({ text: data.text }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
 
   } catch (error) {
     return new Response(
-      JSON.stringify({ error: "Erro ao transcrever" }),
+      JSON.stringify({ error: "Erro na transcrição", details: error.message }),
       { status: 500 }
     );
   }
