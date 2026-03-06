@@ -1,39 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>App Música Beta</title>
+
+<style>
+body{
+font-family: Arial;
+text-align:center;
+margin-top:50px;
+}
+
+button{
+padding:10px 20px;
+font-size:16px;
+cursor:pointer;
+}
+
+#resultado{
+margin-top:20px;
+white-space:pre-wrap;
+}
+</style>
+
+</head>
+
+<body>
+
+<h1>Transcrever Áudio 🎤</h1>
+
+<input type="file" id="audioFile" accept="audio/*">
+<br><br>
+
+<button onclick="enviarAudio()">Transcrever</button>
+
+<div id="resultado"></div>
+
 <script>
 
-async function enviarAudio() {
+async function enviarAudio(){
 
-  const input = document.getElementById("audioFile")
-  const file = input.files[0]
+const input = document.getElementById("audioFile")
+const file = input.files[0]
 
-  if (!file) {
-    alert("Selecione um arquivo")
-    return
-  }
+if(!file){
+alert("Selecione um arquivo")
+return
+}
 
-  const formData = new FormData()
-  formData.append("audio", file)
+const formData = new FormData()
+formData.append("audio", file)
 
-  try {
+document.getElementById("resultado").innerText = "Transcrevendo..."
 
-    const response = await fetch("/api/transcrever", {
-      method: "POST",
-      body: formData
-    })
+try{
 
-    const data = await response.json()
+const response = await fetch("/api/transcrever",{
+method:"POST",
+body:formData
+})
 
-    document.getElementById("resultado").textContent =
-      data.texto || JSON.stringify(data)
+const data = await response.json()
 
-  } catch (error) {
+document.getElementById("resultado").innerText = data.text
 
-    console.error(error)
+}catch(error){
 
-    document.getElementById("resultado").textContent =
-      "Erro ao enviar áudio"
+document.getElementById("resultado").innerText = "Erro ao transcrever"
 
-  }
+}
 
 }
 
 </script>
+
+</body>
+</html>
