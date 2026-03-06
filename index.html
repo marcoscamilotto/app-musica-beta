@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 <meta charset="UTF-8">
 <title>App Música Beta</title>
@@ -10,7 +11,7 @@
 <h1>🎵 App Música Beta</h1>
 <p>Envie sua música e gere a letra automaticamente.</p>
 
-<input type="file" id="audioFile">
+<input type="file" id="audioFile" name="audio">
 <button onclick="enviarAudio()">Enviar Áudio</button>
 
 <pre id="resultado"></pre>
@@ -19,40 +20,35 @@
 
 async function enviarAudio() {
 
-  const input = document.getElementById("audioFile");
-  const file = input.files[0];
+const input = document.getElementById("audioFile")
+const file = input.files[0]
 
-  if (!file) {
-    alert("Selecione um arquivo");
-    return;
-  }
+if (!file) {
+alert("Selecione um arquivo")
+return
+}
 
-  const formData = new FormData();
-  formData.append("audio", file);
+const formData = new FormData()
+formData.append("audio", file)
 
-  try {
+document.getElementById("resultado").textContent = "Enviando áudio..."
 
-    const response = await fetch("/api/transcrever", {
-      method: "POST",
-      body: formData
-    });
+try {
 
-    const data = await response.json();
+const response = await fetch("/api/transcrever", {
+method: "POST",
+body: formData
+})
 
-    console.log(data);
+const data = await response.json()
 
-    if (data.texto) {
-      document.getElementById("resultado").innerText = data.texto;
-    } else {
-      document.getElementById("resultado").innerText =
-        "Erro ao transcrever áudio";
-    }
+document.getElementById("resultado").textContent = data.texto
 
-  } catch (error) {
-    console.error(error);
-    document.getElementById("resultado").innerText =
-      "Erro ao conectar com servidor";
-  }
+} catch (erro) {
+
+document.getElementById("resultado").textContent = "Erro ao enviar áudio"
+
+}
 
 }
 
