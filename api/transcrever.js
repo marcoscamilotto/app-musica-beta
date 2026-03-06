@@ -13,43 +13,33 @@ const openai = new OpenAI({
 });
 
 export default async function handler(req, res) {
-
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Método não permitido" });
   }
 
-  const form = formidable();
+  const form = formidable({ multiples: false });
 
   form.parse(req, async (err, fields, files) => {
-
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: "Erro ao ler arquivo" });
-    }
-
     try {
+      if (err) {
+        return res.status(500).json({ error: "Erro ao ler o arquivo" });
+      }
 
-      const audio = files.audio[0];
+      const file = files.audio;
 
       const transcription = await openai.audio.transcriptions.create({
-        file: fs.createReadStream(audio.filepath),
-        model: "whisper-1",
+        file: fs.createReadStream(file.filepath),
+        model: "gpt-4o-mini-transcribe",
       });
 
       res.status(200).json({
-        text: transcription.text,
+        texto: transcription.text,
       });
-
     } catch (error) {
-
       console.error(error);
-
       res.status(500).json({
         error: "Erro na transcrição",
       });
-
     }
-
   });
-
 }
