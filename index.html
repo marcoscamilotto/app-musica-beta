@@ -1,47 +1,62 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>App Música Beta</title>
+<meta charset="UTF-8">
+<title>App Música Beta</title>
 </head>
+
 <body>
 
-  <h1>🎵 App Música Beta</h1>
-  <p>Envie sua música e gere a letra automaticamente.</p>
+<h1>🎵 App Música Beta</h1>
+<p>Envie sua música e gere a letra automaticamente.</p>
 
-  <input type="file" id="audioFile">
-  <button onclick="enviarAudio()">Enviar Áudio</button>
+<input type="file" id="audioFile">
+<button onclick="enviarAudio()">Enviar Áudio</button>
 
-  <pre id="resultado"></pre>
+<pre id="resultado"></pre>
 
-  <script>
-    async function enviarAudio() {
-      const input = document.getElementById("audioFile");
-      const file = input.files[0];
+<script>
 
-      if (!file) {
-        alert("Selecione um arquivo");
-        return;
-      }
+async function enviarAudio() {
 
-      const formData = new FormData();
-      formData.append("audio", file);
+  const input = document.getElementById("audioFile");
+  const file = input.files[0];
 
-      const response = await fetch("/api/transcrever", {
-        method: "POST",
-        body: formData,
-      });
+  if (!file) {
+    alert("Selecione um arquivo");
+    return;
+  }
 
-      const data = await response.json();
+  const formData = new FormData();
+  formData.append("audio", file);
 
-      if (data.text) {
-        document.getElementById("resultado").innerText = data.text;
-      } else {
-        console.error(data);
-        alert("Erro na transcrição");
-      }
+  try {
+
+    const response = await fetch("/api/transcrever", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await response.json();
+
+    console.log(data);
+
+    if (data.texto) {
+      document.getElementById("resultado").innerText = data.texto;
+    } else {
+      document.getElementById("resultado").innerText =
+        "Erro ao transcrever áudio";
     }
-  </script>
+
+  } catch (error) {
+    console.error(error);
+    document.getElementById("resultado").innerText =
+      "Erro ao conectar com servidor";
+  }
+
+}
+
+</script>
 
 </body>
 </html>
